@@ -83,8 +83,6 @@ public class MainActivity extends Activity {
                 Log.e(DEBUG_TAG, "IO Exception encountered");
             } catch (JSONException e) {
                 Log.e(DEBUG_TAG, "JSON Exception encountered");
-            } catch (Exception e) {
-                Log.e(DEBUG_TAG, "some other kind of exception encountered");
             }
             return null;
         }
@@ -94,7 +92,7 @@ public class MainActivity extends Activity {
             if(isCancelled()) {
                 sponsoredImage = null;
             }
-            mTextView.setText(sponsoredImage.getFullCaption());
+            mTextView.setText(sponsoredImage.getCaption());
             new SetImageTask().execute(sponsoredImage);
             sponsoredImage.logImpression();
         }

@@ -18,62 +18,83 @@ import java.util.Locale;
  * Created by bdlee on 6/12/13.
  */
 public class SponsoredImage {
+    private static int READ_TIMEOUT = 20000; /* milliseconds */
+    private static int CONN_TIMEOUT = 25000; /* milliseconds */
+    
+    private static int DEFAULT_IMAGE_WIDTH = 150;
+    
     private static String IMPRESSION_ENDPOINT = "http://eb.3lift.com/mbi?id=%s&ii=%s&publisher=%s&&platform=%s";
     private static String CLICKTHROUGH_ENDPOINT = "http://eb.3lift.com/mbc?id=%s&ii=%s&publisher=%s&&platform=%s";
     private static String EVENT_ENDPOINT = "http://eb.3lift.com/mbs?id=%s&ii=%s&publisher=%s&&platform=%s&&st=%s";
 
-    private String _publisher;
-    private String _contentID;
-    private String _mobilePlatform;
+    private String mPublisher;
+    private String mContentID;
+    private String mMobilePlatform;
 
-    private String _imageID;
-    private String _imageExtension;
-    private int _imageWidth;
-    private int _imageHeight;
+    private String mImageID;
+    private double mImageWidthOverHeight;
+    private int mImageWidth;
+    private int mImageHeight;
 
-    private String _caption;
-    private String _fullCaption;
-    private String _clickThroughLink;
+    private String mHeading;
+    private String mCaption;
+    private String mClickThroughLink;
 
-    private String _adpinrImageUrl;
+    private String mAdpinrImageUrl;
 
     public SponsoredImage(JSONObject jsonObject, String publisher, String sponsoredContentID, String mobilePlatform) {
-        this._publisher = publisher;
-        this._contentID = sponsoredContentID;
-        this._mobilePlatform = mobilePlatform;
+        mPublisher = publisher;
+        mContentID = sponsoredContentID;
+        mMobilePlatform = mobilePlatform;
 
-        this._imageID = jsonObject.optString("id");
-        this._imageExtension = jsonObject.optString("extension");
-        this._imageWidth = jsonObject.optInt("width");
-        this._imageHeight = jsonObject.optInt("height");
+        mImageWidthOverHeight = jsonObject.optInt("image_w_over_h");
+        mImageWidth = DEFAULT_IMAGE_WIDTH;
+        mImageHeight = (int) (DEFAULT_IMAGE_WIDTH / mImageWidthOverHeight);
 
-        this._caption = jsonObject.optString("caption");
-        this._fullCaption = jsonObject.optString("full_caption");
-        this._clickThroughLink = jsonObject.optString("link");
+        mHeading = jsonObject.optString("heading");
+        mCaption = jsonObject.optString("caption");
+        mClickThroughLink = jsonObject.optString("link");
 
-        this._adpinrImageUrl = String.format(Locale.US, "http://images.adpinr.com/%s%s", this._imageID, this._imageExtension);
+        mAdpinrImageUrl = jsonObject.optString("image_url");
+        mImageID = mAdpinrImageUrl.replaceAll("^(http://.*?/)(.*?)(\\.\\w*)$", "$2");
     }
     public int getImageWidth() {
-        return this._imageWidth;
+        return this.mImageWidth;
     }
     public int getImageHeight() {
-        return this._imageHeight;
+        return this.mImageHeight;
+    }
+    public String getHeading() {
+        return this.mHeading;
     }
     public String getCaption() {
-        return this._caption;
-    }
-    public String getFullCaption() {
-        return this._fullCaption;
+        return this.mCaption;
     }
     public String getClickThroughLink() {
-        return this._clickThroughLink;
+        return this.mClickThroughLink;
+    }
+
+    public String getImageUrl() {
+        return getImageUrl(this.mImageWidth, this.mImageHeight);
+    }
+    public String getImageUrl(int width) {
+        int height = (int) (width / mImageWidthOverHeight);
+        return getImageUrl(width, height);
+    }
+    public String getImageUrl(int width, int height) {
+        try {
+            String encodedAdpinUrl = URLEncoder.encode(this.mAdpinrImageUrl, "UTF-8");
+            return String.format(Locale.US, "http://img.3lift.com/?alt=tl&width=%d&height=%d&url=%s", width, height, encodedAdpinUrl);
+        } catch (Exception e) {
+        }
+        return null;
     }
 
     public Bitmap getImage() throws IOException {
-        return getImage(this._imageWidth, this._imageHeight);
+        return getImage(this.mImageWidth, this.mImageHeight);
     }
     public Bitmap getImage(int width) throws IOException {
-        int height = this._imageHeight * this._imageWidth / width;
+        int height = (int) (width / mImageWidthOverHeight);
         return getImage(width, height);
     }
     public Bitmap getImage(int width, int height) throws IOException {
@@ -84,8 +105,8 @@ public class SponsoredImage {
         try {
             URL url = new URL(imageUrl);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setReadTimeout(10000 /* milliseconds */);
-            conn.setConnectTimeout(15000 /* milliseconds */);
+            conn.setReadTimeout(READ_TIMEOUT);
+            conn.setConnectTimeout(CONN_TIMEOUT);
             conn.setRequestMethod("GET");
             conn.setDoInput(true);
             // Starts the query
@@ -104,31 +125,15 @@ public class SponsoredImage {
         }
     }
 
-    public String getImageUrl() {
-        return getImageUrl(this._imageWidth, this._imageHeight);
-    }
-    public String getImageUrl(int width) {
-        int height = this._imageHeight * this._imageWidth / width;
-        return getImageUrl(width, height);
-    }
-    public String getImageUrl(int width, int height) {
-        try {
-            String encodedAdpinUrl = URLEncoder.encode(this._adpinrImageUrl, "UTF-8");
-            return String.format(Locale.US, "http://img.3lift.com/?width=%d&height=%d&url=%s", width, height, encodedAdpinUrl);
-        } catch (Exception e) {
-        }
-        return null;
-    }
-
     public void logImpression() {
         try {
             String url = String.format(
             		Locale.US,
             		IMPRESSION_ENDPOINT,
-                    URLEncoder.encode(this._contentID, "UTF-8"),
-                    URLEncoder.encode(this._imageID, "UTF-8"),
-                    URLEncoder.encode(this._publisher, "UTF-8"),
-                    URLEncoder.encode(this._mobilePlatform, "UTF-8"));
+                    URLEncoder.encode(this.mContentID, "UTF-8"),
+                    URLEncoder.encode(this.mImageID, "UTF-8"),
+                    URLEncoder.encode(this.mPublisher, "UTF-8"),
+                    URLEncoder.encode(this.mMobilePlatform, "UTF-8"));
             new genericRequestTask().execute(url);
         } catch (UnsupportedEncodingException e) {
         }
@@ -138,10 +143,10 @@ public class SponsoredImage {
             String url = String.format(
             		Locale.US,
             		CLICKTHROUGH_ENDPOINT,
-                    URLEncoder.encode(this._contentID, "UTF-8"),
-                    URLEncoder.encode(this._imageID, "UTF-8"),
-                    URLEncoder.encode(this._publisher, "UTF-8"),
-                    URLEncoder.encode(this._mobilePlatform, "UTF-8"));
+                    URLEncoder.encode(this.mContentID, "UTF-8"),
+                    URLEncoder.encode(this.mImageID, "UTF-8"),
+                    URLEncoder.encode(this.mPublisher, "UTF-8"),
+                    URLEncoder.encode(this.mMobilePlatform, "UTF-8"));
             new genericRequestTask().execute(url);
         } catch (UnsupportedEncodingException e) {
         }
@@ -151,10 +156,10 @@ public class SponsoredImage {
             String url = String.format(
             		Locale.US,
             		EVENT_ENDPOINT,
-                    URLEncoder.encode(this._contentID, "UTF-8"),
-                    URLEncoder.encode(this._imageID, "UTF-8"),
-                    URLEncoder.encode(this._publisher, "UTF-8"),
-                    URLEncoder.encode(this._mobilePlatform, "UTF-8"),
+                    URLEncoder.encode(this.mContentID, "UTF-8"),
+                    URLEncoder.encode(this.mImageID, "UTF-8"),
+                    URLEncoder.encode(this.mPublisher, "UTF-8"),
+                    URLEncoder.encode(this.mMobilePlatform, "UTF-8"),
                     URLEncoder.encode(eventName, "UTF-8"));
             new genericRequestTask().execute(url);
         } catch (UnsupportedEncodingException e) {
@@ -168,8 +173,8 @@ public class SponsoredImage {
             try {
                 URL url = new URL(urls[0]);
                 conn = (HttpURLConnection) url.openConnection();
-                conn.setReadTimeout(10000 /* milliseconds */);
-                conn.setConnectTimeout(15000 /* milliseconds */);
+                conn.setReadTimeout(READ_TIMEOUT /* milliseconds */);
+                conn.setConnectTimeout(CONN_TIMEOUT /* milliseconds */);
                 conn.setRequestMethod("GET");
                 // Starts the query
                 conn.connect();

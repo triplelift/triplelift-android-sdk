@@ -18,9 +18,12 @@ import java.util.Locale;
  * Created by bdlee on 6/12/13.
  */
 public class SponsoredImageFactory {
-    private static int READ_TIMEOUT = 10000; /* milliseconds */
-    private static int CONN_TIMEOUT = 15000; /* milliseconds */
-
+    private static int READ_TIMEOUT = 20000; /* milliseconds */
+    private static int CONN_TIMEOUT = 25000; /* milliseconds */
+    
+    private static String AUCTION_ENDPOINT = "http://ib.adnxs.com/ttj?inv_code=%s&member=1314";
+    private static String SPONSORED_IMAGE_ENDPOINT = "http://dynamic.3lift.com/sc/advertiser/json/%s";
+    
     // The url endpoints for getting images
     private String _appNexusAuctionEndpoint;
     // publisher ID
@@ -28,31 +31,25 @@ public class SponsoredImageFactory {
 
     public SponsoredImageFactory(String tagCode, String publisher) {
         this._publisher = publisher;
-        this._appNexusAuctionEndpoint = String.format(Locale.US, "http://ib.adnxs.com/ttj?inv_code=%s&member=1314", tagCode);
+        this._appNexusAuctionEndpoint = String.format(Locale.US, AUCTION_ENDPOINT, tagCode);
     }
 
     public SponsoredImage getSponsoredImage() throws NetworkOnMainThreadException, IOException, JSONException {
         String creativeCode = downloadStringFromUrl(this._appNexusAuctionEndpoint);
-        String sponsoredImageEndpoint = String.format(Locale.US, "http://dynamic.3lift.com/live_stream/%s",creativeCode);
+        String sponsoredImageEndpoint = String.format(Locale.US, SPONSORED_IMAGE_ENDPOINT,creativeCode);
 
-        String sponsoredImageData = downloadStringFromUrl(sponsoredImageEndpoint);
+        String jsonString = downloadStringFromUrl(sponsoredImageEndpoint);
 
-        if(sponsoredImageData.startsWith("live_stream(") && sponsoredImageData.endsWith(");")) {
-            String jsonString = sponsoredImageData.substring(12, sponsoredImageData.length() - 2);
+        JSONObject jsonObject = new JSONObject(jsonString);
+        if(jsonObject.has("images")) {
+            JSONArray sponsoredImages = jsonObject.getJSONArray("images");
+            if(sponsoredImages.length() > 0) {
+                int i = (int) Math.floor(Math.random() * sponsoredImages.length());
+                JSONObject imageData = sponsoredImages.getJSONObject(i);
 
-            JSONObject jsonObject = new JSONObject(jsonString);
-            if(jsonObject.has("trending_items")) {
-                JSONArray sponsoredImages = jsonObject.getJSONArray("trending_items");
-                if(sponsoredImages.length() > 0) {
-                    int i = (int) Math.floor(Math.random() * sponsoredImages.length());
-                    JSONObject imageData = sponsoredImages.getJSONObject(i);
-
-                    SponsoredImage sponsoredImage = new SponsoredImage(imageData, this._publisher, creativeCode, "android");
-                    return sponsoredImage;
-                }
+                SponsoredImage sponsoredImage = new SponsoredImage(imageData, this._publisher, creativeCode, "android");
+                return sponsoredImage;
             }
-        } else {
-            throw new JSONException("Incorrect format received in TripleLift live stream");
         }
 
         return null;
