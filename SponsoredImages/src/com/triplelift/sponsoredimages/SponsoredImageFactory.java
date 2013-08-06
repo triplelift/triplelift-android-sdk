@@ -25,13 +25,12 @@ public class SponsoredImageFactory {
     private static String SPONSORED_IMAGE_ENDPOINT = "http://dynamic.3lift.com/sc/advertiser/json/%s";
     
     // The url endpoints for getting images
+    private String _invCode;
     private String _appNexusAuctionEndpoint;
-    // publisher ID
-    private String _publisher;
 
-    public SponsoredImageFactory(String tagCode, String publisher) {
-        this._publisher = publisher;
-        this._appNexusAuctionEndpoint = String.format(Locale.US, AUCTION_ENDPOINT, tagCode);
+    public SponsoredImageFactory(String invCode) {
+    	this._invCode = invCode;
+        this._appNexusAuctionEndpoint = String.format(Locale.US, AUCTION_ENDPOINT, invCode);
     }
 
     public SponsoredImage getSponsoredImage() throws NetworkOnMainThreadException, IOException, JSONException {
@@ -47,7 +46,7 @@ public class SponsoredImageFactory {
                 int i = (int) Math.floor(Math.random() * sponsoredImages.length());
                 JSONObject imageData = sponsoredImages.getJSONObject(i);
 
-                SponsoredImage sponsoredImage = new SponsoredImage(imageData, this._publisher, creativeCode, "android");
+                SponsoredImage sponsoredImage = new SponsoredImage(imageData, this._invCode, creativeCode, "android");
                 return sponsoredImage;
             }
         }

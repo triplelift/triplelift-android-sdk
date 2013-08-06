@@ -22,7 +22,6 @@ import java.io.IOException;
 public class MainActivity extends Activity {
     private static String DEBUG_TAG = "NativeAdActivity";
     private static String INV_CODE = "defaultplacement_mobile";
-    private static String APP_NAME = "TripleLift Example App";
     
     private ImageView mImageView;
     private TextView mTextView;
@@ -57,7 +56,7 @@ public class MainActivity extends Activity {
     }
 
     private void populateSponsoredImage() {
-        new SponsoredImageTask().execute(INV_CODE,APP_NAME);
+        new SponsoredImageTask().execute(INV_CODE);
     }
 
 
@@ -72,7 +71,7 @@ public class MainActivity extends Activity {
         @Override
         protected SponsoredImage doInBackground(String... params) {
             Log.i(DEBUG_TAG, "creating the factory");
-            SponsoredImageFactory sif = new SponsoredImageFactory(params[0],params[1]);
+            SponsoredImageFactory sif = new SponsoredImageFactory(params[0]);
             try {
                 Log.i(DEBUG_TAG, "trying to get the sponsored image...");
                 mSponsoredImage = sif.getSponsoredImage();

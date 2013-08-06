@@ -23,11 +23,11 @@ public class SponsoredImage {
     
     private static int DEFAULT_IMAGE_WIDTH = 150;
     
-    private static String IMPRESSION_ENDPOINT = "http://eb.3lift.com/mbi?id=%s&ii=%s&publisher=%s&&platform=%s";
-    private static String CLICKTHROUGH_ENDPOINT = "http://eb.3lift.com/mbc?id=%s&ii=%s&publisher=%s&&platform=%s";
-    private static String EVENT_ENDPOINT = "http://eb.3lift.com/mbs?id=%s&ii=%s&publisher=%s&&platform=%s&&st=%s";
+    private static String IMPRESSION_ENDPOINT = "http://eb.3lift.com/mbi?id=%s&ii=%s&inv_code=%s&&platform=%s";
+    private static String CLICKTHROUGH_ENDPOINT = "http://eb.3lift.com/mbc?id=%s&ii=%s&inv_code=%s&&platform=%s";
+    private static String EVENT_ENDPOINT = "http://eb.3lift.com/mbs?id=%s&ii=%s&inv_code=%s&&platform=%s&&st=%s";
 
-    private String mPublisher;
+    private String mInvCode;
     private String mContentID;
     private String mMobilePlatform;
 
@@ -42,8 +42,8 @@ public class SponsoredImage {
 
     private String mAdpinrImageUrl;
 
-    public SponsoredImage(JSONObject jsonObject, String publisher, String sponsoredContentID, String mobilePlatform) {
-        mPublisher = publisher;
+    public SponsoredImage(JSONObject jsonObject, String invCode, String sponsoredContentID, String mobilePlatform) {
+        mInvCode = invCode;
         mContentID = sponsoredContentID;
         mMobilePlatform = mobilePlatform;
 
@@ -132,7 +132,7 @@ public class SponsoredImage {
             		IMPRESSION_ENDPOINT,
                     URLEncoder.encode(this.mContentID, "UTF-8"),
                     URLEncoder.encode(this.mImageID, "UTF-8"),
-                    URLEncoder.encode(this.mPublisher, "UTF-8"),
+                    URLEncoder.encode(this.mInvCode, "UTF-8"),
                     URLEncoder.encode(this.mMobilePlatform, "UTF-8"));
             new genericRequestTask().execute(url);
         } catch (UnsupportedEncodingException e) {
@@ -145,7 +145,7 @@ public class SponsoredImage {
             		CLICKTHROUGH_ENDPOINT,
                     URLEncoder.encode(this.mContentID, "UTF-8"),
                     URLEncoder.encode(this.mImageID, "UTF-8"),
-                    URLEncoder.encode(this.mPublisher, "UTF-8"),
+                    URLEncoder.encode(this.mInvCode, "UTF-8"),
                     URLEncoder.encode(this.mMobilePlatform, "UTF-8"));
             new genericRequestTask().execute(url);
         } catch (UnsupportedEncodingException e) {
@@ -158,7 +158,7 @@ public class SponsoredImage {
             		EVENT_ENDPOINT,
                     URLEncoder.encode(this.mContentID, "UTF-8"),
                     URLEncoder.encode(this.mImageID, "UTF-8"),
-                    URLEncoder.encode(this.mPublisher, "UTF-8"),
+                    URLEncoder.encode(this.mInvCode, "UTF-8"),
                     URLEncoder.encode(this.mMobilePlatform, "UTF-8"),
                     URLEncoder.encode(eventName, "UTF-8"));
             new genericRequestTask().execute(url);
