@@ -75,6 +75,7 @@ public class MainActivity extends Activity {
             try {
                 Log.i(DEBUG_TAG, "trying to get the sponsored image...");
                 mSponsoredImage = sif.getSponsoredImage();
+                Log.i(DEBUG_TAG, mSponsoredImage.getImageUrl());
                 return mSponsoredImage;
             } catch (NetworkOnMainThreadException e) {
                 Log.e(DEBUG_TAG, "Network connection on main thread encountered");

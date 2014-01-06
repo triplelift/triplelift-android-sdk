@@ -39,6 +39,7 @@ public class SponsoredImage {
     private String mHeading;
     private String mCaption;
     private String mClickThroughLink;
+    private String mImgServerParams;
 
     private String mAdpinrImageUrl;
 
@@ -54,6 +55,7 @@ public class SponsoredImage {
         mHeading = jsonObject.optString("heading");
         mCaption = jsonObject.optString("caption");
         mClickThroughLink = jsonObject.optString("link");
+        mImgServerParams = jsonObject.optString("img_server_params");
 
         mAdpinrImageUrl = jsonObject.optString("image_url");
         mImageID = mAdpinrImageUrl.replaceAll("^(http://.*?/)(.*?)(\\.\\w*)$", "$2");
@@ -84,7 +86,7 @@ public class SponsoredImage {
     public String getImageUrl(int width, int height) {
         try {
             String encodedAdpinUrl = URLEncoder.encode(this.mAdpinrImageUrl, "UTF-8");
-            return String.format(Locale.US, "http://img.3lift.com/?alt=tl&width=%d&height=%d&url=%s", width, height, encodedAdpinUrl);
+            return String.format(Locale.US, "http://img.3lift.com/?alt=tl&width=%d&height=%d&url=%s&%s", width, height, encodedAdpinUrl, this.mImgServerParams);
         } catch (Exception e) {
         }
         return null;
