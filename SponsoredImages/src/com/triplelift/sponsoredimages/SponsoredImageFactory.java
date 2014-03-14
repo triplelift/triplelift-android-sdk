@@ -1,7 +1,6 @@
 package com.triplelift.sponsoredimages;
 
 import android.os.NetworkOnMainThreadException;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -21,34 +20,24 @@ public class SponsoredImageFactory {
     private static int READ_TIMEOUT = 20000; /* milliseconds */
     private static int CONN_TIMEOUT = 25000; /* milliseconds */
     
-    private static String AUCTION_ENDPOINT = "http://ib.adnxs.com/ttj?inv_code=%s&member=1314";
-    private static String SPONSORED_IMAGE_ENDPOINT = "http://dynamic.3lift.com/sc/advertiser/json/%s";
+    private static String IBP_ENDPOINT = "http://ibp.3lift.com/ttj?inv_code=%s";
     
     // The url endpoints for getting images
     private String _invCode;
-    private String _appNexusAuctionEndpoint;
+    private String _ibp_endpoint;
 
     public SponsoredImageFactory(String invCode) {
     	this._invCode = invCode;
-        this._appNexusAuctionEndpoint = String.format(Locale.US, AUCTION_ENDPOINT, invCode);
+        this._ibp_endpoint = String.format(Locale.US, IBP_ENDPOINT, invCode);
     }
 
     public SponsoredImage getSponsoredImage() throws NetworkOnMainThreadException, IOException, JSONException {
-        String creativeCode = downloadStringFromUrl(this._appNexusAuctionEndpoint);
-        String sponsoredImageEndpoint = String.format(Locale.US, SPONSORED_IMAGE_ENDPOINT,creativeCode);
-
-        String jsonString = downloadStringFromUrl(sponsoredImageEndpoint);
+        String jsonString = downloadStringFromUrl(this._ibp_endpoint);
 
         JSONObject jsonObject = new JSONObject(jsonString);
-        if(jsonObject.has("images")) {
-            JSONArray sponsoredImages = jsonObject.getJSONArray("images");
-            if(sponsoredImages.length() > 0) {
-                int i = (int) Math.floor(Math.random() * sponsoredImages.length());
-                JSONObject imageData = sponsoredImages.getJSONObject(i);
-
-                SponsoredImage sponsoredImage = new SponsoredImage(imageData, this._invCode, creativeCode, "android");
-                return sponsoredImage;
-            }
+        if(jsonObject.has("image_url")) {
+            SponsoredImage sponsoredImage = new SponsoredImage(jsonObject, this._invCode, "android");
+            return sponsoredImage;
         }
 
         return null;
@@ -63,13 +52,13 @@ public class SponsoredImageFactory {
         conn.setConnectTimeout(CONN_TIMEOUT);
         conn.setRequestMethod("GET");
         conn.setDoInput(true);
-        // Starts the query
         try {
+            // Starts the request for the string
             is = new BufferedInputStream(conn.getInputStream());
             return readStream(is);
+        } finally {
             // Makes sure that the InputStream is closed after the app is
             // finished using it.
-        } finally {
             conn.disconnect();
             if(is != null) {
                 is.close();

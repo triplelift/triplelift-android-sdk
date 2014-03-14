@@ -21,7 +21,7 @@ import java.io.IOException;
 
 public class MainActivity extends Activity {
     private static String DEBUG_TAG = "NativeAdActivity";
-    private static String INV_CODE = "defaultplacement_mobile";
+    private static String INV_CODE = "pinger_main_feed";
     
     private ImageView mImageView;
     private TextView mTextView;
@@ -36,13 +36,12 @@ public class MainActivity extends Activity {
         mImageView.setImageResource(R.drawable.ic_launcher);
 
         mTextView = (TextView) findViewById(R.id.text);
-
         this.populateSponsoredImage();
     }
 
     public void shareImage(View view) {
         if(mSponsoredImage != null) {
-            mSponsoredImage.logEvent("share");
+            mSponsoredImage.logShare();
         }
     }
     public void clickThroughLink(View view) {
@@ -103,7 +102,7 @@ public class MainActivity extends Activity {
         protected Bitmap doInBackground(SponsoredImage... sponsoredImages) {
             try {
                 SponsoredImage sponsoredImage = sponsoredImages[0];
-                return sponsoredImage.getImage(150, 150);
+                return sponsoredImage.getImage();
             } catch (IOException e) {
                 Log.e(DEBUG_TAG, "IO Exception encountered when trying to do sponsoredImage.getImage()");
             }

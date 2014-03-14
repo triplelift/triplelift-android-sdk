@@ -4,15 +4,14 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 
+import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLEncoder;
-import java.util.Locale;
 
 /**
  * Created by bdlee on 6/12/13.
@@ -20,51 +19,36 @@ import java.util.Locale;
 public class SponsoredImage {
     private static int READ_TIMEOUT = 20000; /* milliseconds */
     private static int CONN_TIMEOUT = 25000; /* milliseconds */
-    
-    private static int DEFAULT_IMAGE_WIDTH = 150;
-    
-    private static String IMPRESSION_ENDPOINT = "http://eb.3lift.com/mbi?id=%s&ii=%s&inv_code=%s&&platform=%s";
-    private static String CLICKTHROUGH_ENDPOINT = "http://eb.3lift.com/mbc?id=%s&ii=%s&inv_code=%s&&platform=%s";
-    private static String EVENT_ENDPOINT = "http://eb.3lift.com/mbs?id=%s&ii=%s&inv_code=%s&&platform=%s&&st=%s";
 
-    private String mInvCode;
-    private String mContentID;
-    private String mMobilePlatform;
+    private String mImageUrl;
+    private String mImageThumbnailUrl;
 
-    private String mImageID;
-    private double mImageWidthOverHeight;
-    private int mImageWidth;
-    private int mImageHeight;
-
+    private String mAdvertiserName;
     private String mHeading;
     private String mCaption;
     private String mClickThroughLink;
-    private String mImgServerParams;
 
-    private String mAdpinrImageUrl;
+    private JSONArray mImpressionPixels;
+    private JSONArray mClickthroughPixels;
+    private JSONArray mInteractionPixels;
+    private JSONArray mSharePixels;
 
-    public SponsoredImage(JSONObject jsonObject, String invCode, String sponsoredContentID, String mobilePlatform) {
-        mInvCode = invCode;
-        mContentID = sponsoredContentID;
-        mMobilePlatform = mobilePlatform;
-
-        mImageWidthOverHeight = jsonObject.optInt("image_w_over_h");
-        mImageWidth = DEFAULT_IMAGE_WIDTH;
-        mImageHeight = (int) (DEFAULT_IMAGE_WIDTH / mImageWidthOverHeight);
-
+    public SponsoredImage(JSONObject jsonObject, String invCode, String mobilePlatform) {
+        mAdvertiserName = jsonObject.optString("advertiser_name");
         mHeading = jsonObject.optString("heading");
         mCaption = jsonObject.optString("caption");
-        mClickThroughLink = jsonObject.optString("link");
-        mImgServerParams = jsonObject.optString("img_server_params");
+        mClickThroughLink = jsonObject.optString("clickthrough_url");
 
-        mAdpinrImageUrl = jsonObject.optString("image_url");
-        mImageID = mAdpinrImageUrl.replaceAll("^(http://.*?/)(.*?)(\\.\\w*)$", "$2");
+        mImageUrl = jsonObject.optString("image_url");
+        mImageThumbnailUrl = jsonObject.optString("image_thumbnail_url");
+
+        mImpressionPixels = jsonObject.optJSONArray("impression_pixels");
+        mClickthroughPixels = jsonObject.optJSONArray("clickthrough_pixels");
+        mInteractionPixels = jsonObject.optJSONArray("interaction_pixels");
+        mSharePixels = jsonObject.optJSONArray("share_pixels");
     }
-    public int getImageWidth() {
-        return this.mImageWidth;
-    }
-    public int getImageHeight() {
-        return this.mImageHeight;
+    public String getAdvertiserName() {
+        return this.mAdvertiserName;
     }
     public String getHeading() {
         return this.mHeading;
@@ -77,31 +61,21 @@ public class SponsoredImage {
     }
 
     public String getImageUrl() {
-        return getImageUrl(this.mImageWidth, this.mImageHeight);
+        return this.mImageUrl;
     }
-    public String getImageUrl(int width) {
-        int height = (int) (width / mImageWidthOverHeight);
-        return getImageUrl(width, height);
-    }
-    public String getImageUrl(int width, int height) {
-        try {
-            String encodedAdpinUrl = URLEncoder.encode(this.mAdpinrImageUrl, "UTF-8");
-            return String.format(Locale.US, "http://img.3lift.com/?alt=tl&width=%d&height=%d&url=%s&%s", width, height, encodedAdpinUrl, this.mImgServerParams);
-        } catch (Exception e) {
-        }
-        return null;
+    public String getImageThumbnailUrl() {
+        return this.mImageThumbnailUrl;
     }
 
     public Bitmap getImage() throws IOException {
-        return getImage(this.mImageWidth, this.mImageHeight);
+        String imageUrl = this.getImageUrl();
+        return doGetImage(imageUrl);
     }
-    public Bitmap getImage(int width) throws IOException {
-        int height = (int) (width / mImageWidthOverHeight);
-        return getImage(width, height);
+    public Bitmap getImageThumbnail() throws IOException {
+        String imageUrl = this.getImageThumbnailUrl();
+        return doGetImage(imageUrl);
     }
-    public Bitmap getImage(int width, int height) throws IOException {
-        String imageUrl = this.getImageUrl(width, height);
-
+    private Bitmap doGetImage(String imageUrl) throws IOException {
         InputStream is = null;
 
         try {
@@ -125,46 +99,43 @@ public class SponsoredImage {
                 is.close();
             }
         }
+    
     }
 
     public void logImpression() {
         try {
-            String url = String.format(
-            		Locale.US,
-            		IMPRESSION_ENDPOINT,
-                    URLEncoder.encode(this.mContentID, "UTF-8"),
-                    URLEncoder.encode(this.mImageID, "UTF-8"),
-                    URLEncoder.encode(this.mInvCode, "UTF-8"),
-                    URLEncoder.encode(this.mMobilePlatform, "UTF-8"));
-            new genericRequestTask().execute(url);
-        } catch (UnsupportedEncodingException e) {
+            for(int i = 0; i < this.mImpressionPixels.length(); i++) {
+            	String url = this.mImpressionPixels.getString(i);
+            	new genericRequestTask().execute(url);
+            }
+        } catch (JSONException e) {
         }
     }
     public void logClickThrough() {
         try {
-            String url = String.format(
-            		Locale.US,
-            		CLICKTHROUGH_ENDPOINT,
-                    URLEncoder.encode(this.mContentID, "UTF-8"),
-                    URLEncoder.encode(this.mImageID, "UTF-8"),
-                    URLEncoder.encode(this.mInvCode, "UTF-8"),
-                    URLEncoder.encode(this.mMobilePlatform, "UTF-8"));
-            new genericRequestTask().execute(url);
-        } catch (UnsupportedEncodingException e) {
+            for(int i = 0; i < this.mClickthroughPixels.length(); i++) {
+            	String url = this.mClickthroughPixels.getString(i);
+            	new genericRequestTask().execute(url);
+            }
+        } catch (JSONException e) {
         }
     }
-    public void logEvent(String eventName) {
+    public void logInteraction() {
         try {
-            String url = String.format(
-            		Locale.US,
-            		EVENT_ENDPOINT,
-                    URLEncoder.encode(this.mContentID, "UTF-8"),
-                    URLEncoder.encode(this.mImageID, "UTF-8"),
-                    URLEncoder.encode(this.mInvCode, "UTF-8"),
-                    URLEncoder.encode(this.mMobilePlatform, "UTF-8"),
-                    URLEncoder.encode(eventName, "UTF-8"));
-            new genericRequestTask().execute(url);
-        } catch (UnsupportedEncodingException e) {
+            for(int i = 0; i < this.mInteractionPixels.length(); i++) {
+            	String url = this.mInteractionPixels.getString(i);
+            	new genericRequestTask().execute(url);
+            }
+        } catch (JSONException e) {
+        }
+    }
+    public void logShare() {
+        try {
+            for(int i = 0; i < this.mSharePixels.length(); i++) {
+            	String url = this.mSharePixels.getString(i);
+            	new genericRequestTask().execute(url);
+            }
+        } catch (JSONException e) {
         }
     }
 
