@@ -1,5 +1,17 @@
 # Getting Started
 
+Use jitpack to add the TripleLift SDK as a dependency in your project.
+
+````
+repositories { 
+    ...
+    maven { url "https://jitpack.io" }
+}
+dependencies {
+    compile 'com.github.triplelift:triplelift-android-sdk:2.0'
+}
+````
+
 ## Requirements and Dependencies
 
 The SDK uses Volley for requests and requires that it be an included module: http://developer.android.com/training/volley/index.html
