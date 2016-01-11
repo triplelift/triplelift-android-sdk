@@ -2,13 +2,13 @@ package com.triplelift.sdk;
 
 public class NativeAdLayout {
 
-    private final int brandId, imageId, logoId, headerId, captionId;
+    private final int brandId, imageId, headerId, captionId;//logo
 
-    public NativeAdLayout(int brandId, int imageId, int logoId,
+    public NativeAdLayout(int brandId, int imageId,
                           int headerId, int captionId) {
         this.brandId = brandId;
         this.imageId = imageId;
-        this.logoId = logoId;
+        //this.logoId = logoId;
         this.headerId = headerId;
         this.captionId = captionId;
     }
@@ -21,9 +21,9 @@ public class NativeAdLayout {
         return imageId;
     }
 
-    public int getLogoId() {
-        return logoId;
-    }
+//    public int getLogoId() {
+//        return logoId;
+//    }
 
     public int getHeaderId() {
         return headerId;
