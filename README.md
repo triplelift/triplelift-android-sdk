@@ -1,6 +1,6 @@
 # Getting Started
 
-Use jitpack to add the TripleLift SDK as a dependency in your project.
+Use jitpack to add the TripleLift SDK as a dependency.
 
 ````
 repositories { 
