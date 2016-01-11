@@ -95,12 +95,3 @@ Map<String, Object> userData; // Populate with the relevant user data
 adapter.requestAds(userData);
 super.onResume();
 ````
-
-## Prevent Memory Leaks
-Call ````onDestroy()```` on the NativeAdAdapter when destroying the hosting activity to prevent memory leaks.
-
-````java
-// Include in the body of onDestroy
-nativeAdAdapter.onDestroy();
-super.onDestroy();
-````
