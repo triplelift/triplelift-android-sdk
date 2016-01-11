@@ -22,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class NativeAdController {
 
     private static final String TAG = NativeAdController.class.getSimpleName();
-    private static final String BASE_URL = "http://tlx.3lift.net/mj/auction?";
+    private static final String BASE_URL = "http://tlx.3lift.com/mj/auction?";
     private static final int CACHE_EXPIRATION = 5 * 60 * 1000;
     private static final int[] RETRY_DELAY = new int[]{1000, 1000 * 5, 1000 * 30, 1000 * 60, 1000 * 60 * 3};
     private static final int CACHE_SIZE = 1;
@@ -31,6 +31,7 @@ public class NativeAdController {
     private boolean retryFired = false;
     private String invCode;
     private int retryIndex = 0;
+    private boolean debug = false;
 
     private final Context context;
     private final Handler cacheHandler;
@@ -106,19 +107,19 @@ public class NativeAdController {
                         fillCache();
                     }
                 }, new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        VolleyLog.d(TAG, "Error: " + error.getMessage());
-                        requestFired = false;
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                VolleyLog.d(TAG, "Error: " + error.getMessage());
+                requestFired = false;
 
-                        if (retryIndex >= RETRY_DELAY.length) {
-                            retryReset();
-                            return;
-                        }
-                        cacheHandler.postDelayed(cacheRunnable, RETRY_DELAY[retryIndex]);
-                        retryIndex++;
-                    }
+                if (retryIndex >= RETRY_DELAY.length) {
+                    retryReset();
+                    return;
                 }
+                cacheHandler.postDelayed(cacheRunnable, RETRY_DELAY[retryIndex]);
+                retryIndex++;
+            }
+        }
         );
 
         jsonReq.setRetryPolicy(new DefaultRetryPolicy(2*1000, 20, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
@@ -126,7 +127,11 @@ public class NativeAdController {
     }
 
     private String generateRequestUrl(Map<String, String> userData) {
-        StringBuilder sb = new StringBuilder(BASE_URL + "referrer=http%3A%2F%2Fmakersalley.com%2Fsearch%26tactic_id%3D123456%20[3:44]&" +"inv_code=" + invCode + "&");
+        String debugString = "";
+        if (debug) {
+            debugString = "test=true&";
+        }
+        StringBuilder sb = new StringBuilder(BASE_URL + debugString +"inv_code=" + invCode + "&");
         for (Map.Entry<String, String> entry: userData.entrySet()) {
             String key = entry.getKey();
             String value = entry.getValue();
@@ -186,5 +191,9 @@ public class NativeAdController {
 
     private void retryReset() {
         retryIndex = 0;
+    }
+
+    public void setDebug(boolean debug) {
+        this.debug = debug;
     }
 }

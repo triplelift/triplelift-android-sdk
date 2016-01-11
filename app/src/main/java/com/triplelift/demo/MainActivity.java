@@ -45,9 +45,7 @@ public class MainActivity extends Activity {
         feedItems = new ArrayList<>();
         listAdapter = new FeedListAdapter(this, feedItems);
 
-//        String placementId = "makersalley_main";
-        String placementId = "makers_alley_370_174";
-
+        String placementId = "makersalley_main";
 
         NativeAdLayout nativeAdLayout = new NativeAdLayout(R.id.native_ad_brand_name,
                 R.id.native_ad_image, 0, R.id.native_ad_title,
@@ -58,9 +56,9 @@ public class MainActivity extends Activity {
 
         nativeAdAdapter.registerNativeAdLayout(nativeAdLayout);
 
+        nativeAdAdapter.setDebug();
 
         listView.setAdapter(nativeAdAdapter);
-//        listView.setAdapter(listAdapter);
 
         Cache cache = AppController.getInstance().getRequestQueue().getCache();
         Cache.Entry entry = cache.get(URL_FEED);
@@ -72,10 +70,10 @@ public class MainActivity extends Activity {
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-    } else {
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+        } else {
             JsonObjectRequest jsonReq = new JsonObjectRequest(Request.Method.GET, URL_FEED, null,
                     new Response.Listener<JSONObject>() {
                         @Override
@@ -86,12 +84,12 @@ public class MainActivity extends Activity {
                             }
                         }
                     }, new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-                            VolleyLog.d(TAG, "Error: " + error.getMessage());
-                        }
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    VolleyLog.d(TAG, "Error: " + error.getMessage());
+                }
 
-                    });
+            });
             AppController.getInstance().addToRequestQueue(jsonReq);
         }
     }
