@@ -2,9 +2,9 @@
 
 Try out our [demo](https://s3.amazonaws.com/mobile.triplelift.com/triplelift-android-sdk.zip)
 
-Use jitpack to add the TripleLift SDK as a dependency.
-
 ## Adding the TripleLift SDK to your project
+
+Clone this project or use jitpack to add the TripleLift SDK as a dependency.
 
 ````
 repositories { 
