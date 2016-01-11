@@ -4,6 +4,8 @@ Try out our [demo](https://s3.amazonaws.com/mobile.triplelift.com/triplelift-and
 
 Use jitpack to add the TripleLift SDK as a dependency.
 
+## Adding the TripleLift SDK to your project
+
 ````
 repositories { 
     ...
