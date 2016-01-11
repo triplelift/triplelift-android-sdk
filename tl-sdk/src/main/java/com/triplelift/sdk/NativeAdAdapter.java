@@ -211,4 +211,8 @@ public class NativeAdAdapter extends BaseAdapter {
         return originalAdapter.getViewTypeCount() + getNativeAdViewTypeCount();
     }
 
+    public void setDebug() {
+        nativeAdController.setDebug(true);
+    }
+
 }
