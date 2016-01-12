@@ -1,6 +1,6 @@
 # Getting Started
 
-Try out our [demo](https://s3.amazonaws.com/mobile.triplelift.com/triplelift-android-sdk.zip)
+Try out our [demo](https://s3.amazonaws.com/mobile.triplelift.com/triplelift-android-sample.zip)
 
 ## Adding the TripleLift SDK to your project
 
