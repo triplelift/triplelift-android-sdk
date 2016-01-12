@@ -18,6 +18,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class NativeAdAdapter extends BaseAdapter {
 
+    private static final double DEFAULT_AR = 1.618;
     private Adapter originalAdapter;
     private Context context;
     private NativeAdLayout nativeAdLayout;
@@ -27,6 +28,7 @@ public class NativeAdAdapter extends BaseAdapter {
     private NativeAdController nativeAdController;
     private NativeFeedPlacement nativeFeedPlacement;
     private NativeDisplayAdViewHolder viewHolder;
+    private double aspectRatio;
 
     static class NativeDisplayAdViewHolder {
         TextView brand;
@@ -45,10 +47,21 @@ public class NativeAdAdapter extends BaseAdapter {
         this.invCode = invCode;
         this.userData = new ConcurrentHashMap<>();
         this.viewHolder = new NativeDisplayAdViewHolder();
+        this.aspectRatio = DEFAULT_AR;
 
         this.nativeAdController = new NativeAdController(context);
         NativeFeedPositions nativeFeedPosition = new NativeFeedPositions(new int[] {initialPosition}, repeatInterval);
         this.nativeFeedPlacement = new NativeFeedPlacement(nativeFeedPosition);
+
+        int deviceWidth = Utils.getWidth(context);
+        int adjustedHeight = (int) Math.round(deviceWidth / aspectRatio);
+        this.userData.put("width", Integer.toString(deviceWidth));
+        this.userData.put("height", Integer.toString(adjustedHeight));
+
+    }
+
+    public void setAspectRatio(double aspectRatio) {
+        this.aspectRatio = aspectRatio;
     }
 
     private NativeAd getNativeAd(int position) {
@@ -103,6 +116,9 @@ public class NativeAdAdapter extends BaseAdapter {
             viewHolder.mainImage = (NetworkImageView) view.findViewById(nativeAdLayout.getImageId());
             //viewHolder.logo = (NetworkImageView) view.findViewById(nativeAdLayout.getLogoId());
             view.setTag(viewHolder);
+
+//            userData.put("width", Integer.toString(viewHolder.mainImage.getWidth()));
+//            userData.put("height", Integer.toString(viewHolder.mainImage.getHeight()));
         } else {
             viewHolder = (NativeDisplayAdViewHolder) view.getTag();
         }
