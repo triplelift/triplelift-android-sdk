@@ -53,10 +53,10 @@ public class NativeAdAdapter extends BaseAdapter {
         NativeFeedPositions nativeFeedPosition = new NativeFeedPositions(new int[] {initialPosition}, repeatInterval);
         this.nativeFeedPlacement = new NativeFeedPlacement(nativeFeedPosition);
 
-        long deviceWidth = Utils.getWidth(context);
-        long adjustedHeight = Math.round(deviceWidth / aspectRatio);
-        this.userData.put("width", Long.toString(deviceWidth));
-        this.userData.put("height", Long.toString(adjustedHeight));
+        int deviceWidth = Utils.getWidth(context);
+        int adjustedHeight = (int) Math.round(deviceWidth / aspectRatio);
+        this.userData.put("width", Integer.toString(deviceWidth));
+        this.userData.put("height", Integer.toString(adjustedHeight));
 
     }
 

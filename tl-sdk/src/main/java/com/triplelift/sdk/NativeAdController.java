@@ -22,7 +22,9 @@ import java.util.concurrent.ConcurrentHashMap;
 public class NativeAdController {
 
     private static final String TAG = NativeAdController.class.getSimpleName();
-    private static final String BASE_URL = "http://10.0.1.86:8076/mj/auction?";
+//    private static final String BASE_URL = "http://10.0.1.86:8076/mj/auction?";
+    private static final String BASE_URL = "http://tlx.3lift.net/mj/auction?";
+
     private static final int CACHE_EXPIRATION = 5 * 60 * 1000;
     private static final int[] RETRY_DELAY = new int[]{1000, 1000 * 5, 1000 * 30, 1000 * 60, 1000 * 60 * 3};
     private static final int CACHE_SIZE = 1;
@@ -102,19 +104,23 @@ public class NativeAdController {
                                 nativeAdCache.add(nativeAd);
                                 requestFired = false;
                                 retryReset();
-                            } else {
-                                requestFired = false;
-                                if (retryIndex >= RETRY_DELAY.length) {
-                                    retryReset();
-                                    return;
-                                }
-                                cacheHandler.postDelayed(cacheRunnable, RETRY_DELAY[retryIndex]);
-                                retryIndex++;
                             }
-                        } else {
-                            requestFired = false;
-                            retryReset();
                         }
+                        requestFired = false;
+
+//                            else {
+//                                requestFired = false;
+//                                if (retryIndex >= RETRY_DELAY.length) {
+//                                    retryReset();
+//                                    return;
+//                                }
+//                                cacheHandler.postDelayed(cacheRunnable, RETRY_DELAY[retryIndex]);
+//                                retryIndex++;
+//                            }
+//                        } else {
+//                            requestFired = false;
+//                            retryReset();
+//                        }
                     }
                 }, new Response.ErrorListener() {
             @Override
@@ -131,7 +137,7 @@ public class NativeAdController {
         }
         );
 
-        jsonReq.setRetryPolicy(new DefaultRetryPolicy(2*1000, 20, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        jsonReq.setRetryPolicy(new DefaultRetryPolicy(5*1000, 0, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
         Controller.getInstance(context).addToRequestQueue(jsonReq);
     }
 
