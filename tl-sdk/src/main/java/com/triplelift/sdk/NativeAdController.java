@@ -22,8 +22,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class NativeAdController {
 
     private static final String TAG = NativeAdController.class.getSimpleName();
-    //private static final String BASE_URL = "http://tlx.3lift.net/mj/auction?invType=app&";
-    private static final String BASE_URL = "http://10.0.1.86:8076/mj/auction?invType=app&";
+    private static final String BASE_URL = "http://tlx.3lift.com/mj/auction?invType=app&";
+    //private static final String BASE_URL = "http://10.0.1.86:8076/mj/auction?invType=app&";
     private static final int CACHE_EXPIRATION = 5 * 60 * 1000;
     private static final int[] RETRY_DELAY = new int[]{1000, 1000 * 5, 1000 * 30, 1000 * 60, 1000 * 60 * 3};
     private static final int CACHE_SIZE = 1;
