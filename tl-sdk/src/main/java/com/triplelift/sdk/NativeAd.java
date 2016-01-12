@@ -100,7 +100,11 @@ public class NativeAd {
     }
 
     public String getBrandName() {
-        return brandName;
+        try {
+            return brandName;
+        } catch (Exception e) {
+            return "TripleLift";
+        }
     }
 
     public String getClickthroughUrl() {

@@ -2,8 +2,11 @@ package com.triplelift.sdk;
 
 import android.content.Context;
 import android.content.pm.PackageManager;
+import android.graphics.Point;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.view.Display;
+import android.view.WindowManager;
 
 import java.net.Inet4Address;
 import java.net.InetAddress;
@@ -52,5 +55,15 @@ public class Utils {
 
     public static int getOrientation(Context context) {
         return context.getResources().getConfiguration().orientation;
+    }
+
+    public static int getWidth(Context context) {
+        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        Display display = wm.getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        int width = size.x;
+
+        return width;
     }
 }

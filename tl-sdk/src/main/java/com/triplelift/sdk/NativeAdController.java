@@ -22,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class NativeAdController {
 
     private static final String TAG = NativeAdController.class.getSimpleName();
-    private static final String BASE_URL = "http://tlx.3lift.com/mj/auction?";
+    private static final String BASE_URL = "http://10.0.1.86:8076/mj/auction?";
     private static final int CACHE_EXPIRATION = 5 * 60 * 1000;
     private static final int[] RETRY_DELAY = new int[]{1000, 1000 * 5, 1000 * 30, 1000 * 60, 1000 * 60 * 3};
     private static final int CACHE_SIZE = 1;
@@ -100,18 +100,27 @@ public class NativeAdController {
                             NativeAd nativeAd = parseNativeAd(response);
                             if (nativeAd != null) {
                                 nativeAdCache.add(nativeAd);
+                                requestFired = false;
+                                retryReset();
+                            } else {
+                                requestFired = false;
+                                if (retryIndex >= RETRY_DELAY.length) {
+                                    retryReset();
+                                    return;
+                                }
+                                cacheHandler.postDelayed(cacheRunnable, RETRY_DELAY[retryIndex]);
+                                retryIndex++;
                             }
+                        } else {
+                            requestFired = false;
+                            retryReset();
                         }
-                        requestFired = false;
-                        retryReset();
-                        fillCache();
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
                 VolleyLog.d(TAG, "Error: " + error.getMessage());
                 requestFired = false;
-
                 if (retryIndex >= RETRY_DELAY.length) {
                     retryReset();
                     return;
@@ -145,9 +154,8 @@ public class NativeAdController {
 
     private NativeAd parseNativeAd(JSONObject response) {
         try {
-
+            System.out.println(response.toString());
             if (response.has("status") && "no_bid".equals(response.getString("status"))) {
-                System.out.println(response.toString());
                 return null;
             }
 
@@ -156,6 +164,8 @@ public class NativeAdController {
             String imageUrl = response.getString("image_url");
             String caption = response.getString("caption");
             String heading = response.getString("heading");
+
+            imageUrl = imageUrl.replace("https", "http"); //sand image server doesn't support https
 
             //TODO fix this? & maybe null check
             List<String> clickthroughPixels = jsonArrayToList((JSONArray) response.get("clickthrough_pixels"));
