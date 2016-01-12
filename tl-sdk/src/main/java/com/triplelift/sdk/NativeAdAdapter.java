@@ -29,6 +29,8 @@ public class NativeAdAdapter extends BaseAdapter {
     private NativeFeedPlacement nativeFeedPlacement;
     private NativeDisplayAdViewHolder viewHolder;
     private double aspectRatio;
+    private Integer width;
+    private Integer height;
 
     static class NativeDisplayAdViewHolder {
         TextView brand;
@@ -53,11 +55,31 @@ public class NativeAdAdapter extends BaseAdapter {
         NativeFeedPositions nativeFeedPosition = new NativeFeedPositions(new int[] {initialPosition}, repeatInterval);
         this.nativeFeedPlacement = new NativeFeedPlacement(nativeFeedPosition);
 
+        setImplicitUserData();
+    }
+
+    private void setImplicitUserData() {
         int deviceWidth = Utils.getWidth(context);
         int adjustedHeight = (int) Math.round(deviceWidth / aspectRatio);
         this.userData.put("width", Integer.toString(deviceWidth));
         this.userData.put("height", Integer.toString(adjustedHeight));
+        try {
+            String ip = Utils.getIpAddress();
+            this.userData.put("ip", ip);
+        } catch (Exception e) {
+            //DO NOTHING
+        }
+    }
 
+    public void setDimensions(Integer width, Integer height) {
+
+        if (width != null) {
+            this.userData.put("width", Integer.toString(width));
+        }
+
+        if (height != null) {
+            this.userData.put("height", Integer.toString(height));
+        }
     }
 
     public void setAspectRatio(double aspectRatio) {
@@ -147,7 +169,7 @@ public class NativeAdAdapter extends BaseAdapter {
 
             nativeAd.fireImpression();
 
-        } catch (ClassCastException exception) {
+        } catch (Exception exception) {
             System.out.println(exception.getMessage());
             return null;
         }
