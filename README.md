@@ -75,6 +75,10 @@ NativeAdLayout nativeAdLayout = new NativeAdLayout(R.layout.native_ad_item,
 nativeAdAdapter = new NativeAdAdapter(context,
         adapter, <INVENTORY_CODE>, nativeAdLayout, 
         initPosition, interval);
+        
+// Optional: set the aspect ratio for each image, default is the Golden Ratio
+// otherwise, pass in width and height into the userData object in the nativeAdAdapter
+nativeAdAdapter.setAspectRatio(aspectRatio);
 ````
 
 ## Request Native Ads
