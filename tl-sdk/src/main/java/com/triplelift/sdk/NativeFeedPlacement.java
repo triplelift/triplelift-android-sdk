@@ -16,7 +16,7 @@ public class NativeFeedPlacement {
 
         int current = 0;
         int adsPlaced = 0;
-        if (nativeFeedPositions.getFixedPositions() != null) {
+        if (fixedPositions != null) {
             for (int position: fixedPositions) {
                 if (position == 0) {
                     continue;
