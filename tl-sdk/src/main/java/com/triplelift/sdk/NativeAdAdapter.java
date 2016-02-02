@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.Adapter;
 import android.widget.BaseAdapter;
 import android.widget.TextView;
@@ -146,6 +147,16 @@ public class NativeAdAdapter extends BaseAdapter {
         }
 
         ImageLoader imageLoader = Controller.getInstance(context).getImageLoader();
+
+        viewHolder.mainImage.getViewTreeObserver().addOnPreDrawListener(
+                new ViewTreeObserver.OnPreDrawListener() {
+                    public boolean onPreDraw() {
+                        int width = viewHolder.mainImage.getMeasuredWidth();
+                        int height = viewHolder.mainImage.getMeasuredHeight();
+                        setDimensions(width, height);
+                        return true;
+                    }
+                });
 
         try {
 
