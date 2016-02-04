@@ -142,6 +142,9 @@ public class NativeAdAdapter extends BaseAdapter {
 //            userData.put("width", Integer.toString(viewHolder.mainImage.getWidth()));
 //            userData.put("height", Integer.toString(viewHolder.mainImage.getHeight()));
         } else {
+            if (view.getTag() == null) {
+                return null;
+            }
             viewHolder = (NativeDisplayAdViewHolder) view.getTag();
         }
 
