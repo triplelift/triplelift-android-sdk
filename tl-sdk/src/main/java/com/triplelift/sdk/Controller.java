@@ -1,16 +1,12 @@
 package com.triplelift.sdk;
 
 import android.content.Context;
-import android.os.Handler;
 import android.text.TextUtils;
 
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.Volley;
-
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /** Instantiate with the application context, not the activity context */
 public class Controller {
@@ -22,34 +18,12 @@ public class Controller {
     private RequestQueue mRequestQueue;
     private ImageLoader mImageLoader;
     LruBitmapCache mLruBitMapCache;
-    private Runnable mAdRequester;
-
-    private final List<NativeAd> ads;
-
-    private final Handler handler;
 
     private Controller(Context context) {
         mCtx = context;
         mRequestQueue = getRequestQueue();
-        ads = new CopyOnWriteArrayList<>();
         mImageLoader = new ImageLoader(mRequestQueue,
                 new LruBitmapCache());
-
-        handler = new Handler();
-
-        mAdRequester = new Runnable() {
-            public void run() {
-                requestAds();
-            }
-        };
-    }
-
-    private void requestAds() {
-
-        if (!Utils.isNetworkAvailable(mCtx)) {
-            return;
-        }
-
     }
 
     public static synchronized Controller getInstance(Context context) {

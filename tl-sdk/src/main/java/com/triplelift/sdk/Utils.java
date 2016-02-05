@@ -66,4 +66,11 @@ public class Utils {
 
         return width;
     }
+
+    public static String getStringElseNull(String value) {
+        if (value == null) {
+            return "";
+        }
+        return value;
+    }
 }

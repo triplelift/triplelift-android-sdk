@@ -15,60 +15,71 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class NativeAdController {
 
     private static final String TAG = NativeAdController.class.getSimpleName();
-    private static final String BASE_URL = "http://tlx.3lift.com/mj/auction?invType=app&";
-    //private static final String BASE_URL = "http://10.0.1.86:8076/mj/auction?invType=app&";
+    //private static final String BASE_URL = "http://tlx.3lift.com/mj/auction?invType=app&";
+    private static final String BASE_URL = "http://10.0.1.86:8076/mj/auction?invType=app&";
     private static final int CACHE_EXPIRATION = 5 * 60 * 1000;
     private static final int[] RETRY_DELAY = new int[]{1000, 1000 * 5, 1000 * 30, 1000 * 60, 1000 * 60 * 3};
     private static final int CACHE_SIZE = 1;
     private Map<String, String> requestParams;
     private boolean requestFired = false;
     private boolean retryFired = false;
-    private String invCode;
     private int retryIndex = 0;
     private boolean debug = false;
 
     private final Context context;
     private final Handler cacheHandler;
     private final Runnable cacheRunnable;
-    private final List<NativeAd> nativeAdCache;
+    private final Map<String, List<NativeAd>> nativeAdCache;
+    private final Set<String> invCodes;
 
     NativeAdController(Context context) {
         this.requestParams = new ConcurrentHashMap<>();
         this.context = context;
-        this.nativeAdCache = new ArrayList<>(CACHE_SIZE);
+        this.nativeAdCache = new HashMap<>();
         this.cacheHandler = new Handler();
+        this.invCodes = new HashSet<>();
         this.cacheRunnable = new Runnable() {
             @Override
             public void run() {
                 retryFired = false;
-                fillCache();
+                for (String invCode: invCodes) {
+                    fillCache(invCode);
+                }
             }
         };
+    }
+
+    public void registerInvCode(String invCode) {
+        invCodes.add(invCode);
     }
 
     public boolean adsAvailable() {
         return !nativeAdCache.isEmpty();
     }
 
-    public void requestAds(Map<String, String> requestParams, String invCode) {
-        this.invCode = invCode;
+    public void requestAds(String invCode, Map<String, String> requestParams) {
         this.requestParams = requestParams;
-        fillCache();
+        fillCache(invCode);
     }
 
-    protected NativeAd retrieveNativeAd() {
+    protected NativeAd retrieveNativeAd(String invCode) {
         NativeAd nativeAd = null;
         long now = System.currentTimeMillis();
 
-        while (!nativeAdCache.isEmpty()) {
-            nativeAd = nativeAdCache.remove(0);
+        List<NativeAd> placementCache = nativeAdCache.get(invCode);
+
+        while (placementCache != null && !placementCache.isEmpty()) {
+            nativeAd = placementCache.remove(0);
             long created = nativeAd.getCreated();
             if (now - created <= CACHE_EXPIRATION) {
                 break;
@@ -82,16 +93,27 @@ public class NativeAdController {
         return nativeAd;
     }
 
-    private void fillCache() {
-        if (nativeAdCache.size() < CACHE_SIZE) {
+    private void fillCache(String invCode) {
+        List<NativeAd> cache;
+        if (!nativeAdCache.containsKey(invCode)) {
+            cache = new ArrayList<>(CACHE_SIZE);
+            nativeAdCache.put(invCode, cache);
+        } else {
+            cache = nativeAdCache.get(invCode);
+        }
+        if (cache.size() < CACHE_SIZE) {
             requestFired = true;
-            requestAd();
+            requestAd(invCode);
         }
     }
 
-    private void requestAd() {
+    private void requestAd(final String invCode) {
 
-        final String requestUrl = generateRequestUrl(requestParams);
+        if (!nativeAdCache.containsKey(invCode)) {
+            nativeAdCache.put(invCode, new ArrayList<NativeAd>());
+        }
+
+        final String requestUrl = generateRequestUrl(invCode, requestParams);
         JsonObjectRequest jsonReq = new JsonObjectRequest(Request.Method.GET, requestUrl, null,
                 new Response.Listener<JSONObject>() {
                     @Override
@@ -100,7 +122,8 @@ public class NativeAdController {
                         if (response != null) {
                             NativeAd nativeAd = parseNativeAd(response);
                             if (nativeAd != null) {
-                                nativeAdCache.add(nativeAd);
+                                List<NativeAd> placementCache = nativeAdCache.get(invCode);
+                                placementCache.add(nativeAd);
                                 requestFired = false;
                                 retryReset();
                             }
@@ -126,7 +149,7 @@ public class NativeAdController {
         Controller.getInstance(context).addToRequestQueue(jsonReq);
     }
 
-    private String generateRequestUrl(Map<String, String> userData) {
+    private String generateRequestUrl(String invCode, Map<String, String> userData) {
         String debugString = "";
         if (debug) {
             debugString = "test=true&";
