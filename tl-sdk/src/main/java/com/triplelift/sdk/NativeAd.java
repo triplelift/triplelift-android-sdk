@@ -15,22 +15,21 @@ public class NativeAd {
     private final Context context;
     private final List<String> impressionPixels, clickPixels;
     private final String brandName, clickthroughUrl, imageUrl, caption, header, logoUrl;
+    private final long created;
 
     public long getCreated() {
         return created;
     }
 
-    private final long created;
-
     public NativeAd(Context context, String brandName, String clickthroughUrl, String imageUrl, String caption,
                     String header, String logoUrl, List<String> impressionPixels, List<String> clickPixels) {
-        this.brandName = brandName;
+        this.brandName = Utils.getStringElseNull(brandName);
         this.clickthroughUrl = clickthroughUrl;
-        this.imageUrl = imageUrl;
-        this.caption = caption;
-        this.header = header;
+        this.imageUrl = Utils.getStringElseNull(imageUrl);
+        this.caption = Utils.getStringElseNull(caption);
+        this.header = Utils.getStringElseNull(header);
         this.context = context;
-        this.logoUrl = logoUrl;
+        this.logoUrl = Utils.getStringElseNull(logoUrl);
         this.impressionPixels = impressionPixels;
         this.clickPixels = clickPixels;
         this.created = System.currentTimeMillis();
@@ -41,7 +40,6 @@ public class NativeAd {
             return;
         }
         for (String impressionPixel: impressionPixels) {
-
             ImageRequest request = new ImageRequest(impressionPixel,
                     new Response.Listener<Bitmap>() {
                         @Override
@@ -53,7 +51,8 @@ public class NativeAd {
                         public void onErrorResponse(VolleyError error) {
                         }
                     });
-            request.setRetryPolicy(new DefaultRetryPolicy(20*1000, 0, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            request.setRetryPolicy(new DefaultRetryPolicy(20*1000, 1,
+                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             Controller.getInstance(context).addToRequestQueue(request);
         }
     }
@@ -74,7 +73,8 @@ public class NativeAd {
                         public void onErrorResponse(VolleyError error) {
                         }
                     });
-            request.setRetryPolicy(new DefaultRetryPolicy(20*1000, 0, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+            request.setRetryPolicy(new DefaultRetryPolicy(20*1000, 1,
+                    DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
             Controller.getInstance(context).addToRequestQueue(request);
          }
     }
@@ -100,11 +100,7 @@ public class NativeAd {
     }
 
     public String getBrandName() {
-        try {
-            return brandName;
-        } catch (Exception e) {
-            return "TripleLift";
-        }
+        return brandName;
     }
 
     public String getClickthroughUrl() {

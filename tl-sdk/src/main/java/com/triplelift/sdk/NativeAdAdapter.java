@@ -53,6 +53,7 @@ public class NativeAdAdapter extends BaseAdapter {
         this.aspectRatio = DEFAULT_AR;
 
         this.nativeAdController = new NativeAdController(context);
+        this.nativeAdController.registerInvCode(invCode);
         NativeFeedPositions nativeFeedPosition = new NativeFeedPositions(new int[] {initialPosition}, repeatInterval);
         this.nativeFeedPlacement = new NativeFeedPlacement(nativeFeedPosition);
 
@@ -92,12 +93,13 @@ public class NativeAdAdapter extends BaseAdapter {
             if (nativeFeedPlacement.isAdPositionLive(position)) {
                 return nativeFeedPlacement.getNativeAd(position);
             } else {
-                NativeAd nativeAd = nativeAdController.retrieveNativeAd();
+                NativeAd nativeAd = nativeAdController.retrieveNativeAd(invCode);
                 if (nativeAd != null) {
                     nativeFeedPlacement.placeNativeAd(nativeAd, position);
                     notifyDataSetChanged();
                     return nativeAd;
                 }
+                loadAds();
             }
         }
         return null;
@@ -120,7 +122,7 @@ public class NativeAdAdapter extends BaseAdapter {
     }
 
     public void loadAds() {
-        nativeAdController.requestAds(userData, invCode);
+        nativeAdController.requestAds(invCode, userData);
     }
 
     private View getNativeAdView(int position, View view, ViewGroup parent) {
