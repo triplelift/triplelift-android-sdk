@@ -94,11 +94,14 @@ public class NativeAdController {
     }
 
     private void fillCache(String invCode) {
-        List<NativeAd> cache = nativeAdCache.get(invCode);
-        if (cache == null) {
-
+        List<NativeAd> cache;
+        if (!nativeAdCache.containsKey(invCode)) {
+            cache = new ArrayList<>(CACHE_SIZE);
+            nativeAdCache.put(invCode, cache);
+        } else {
+            cache = nativeAdCache.get(invCode);
         }
-        if (nativeAdCache.size() < CACHE_SIZE) {
+        if (cache.size() < CACHE_SIZE) {
             requestFired = true;
             requestAd(invCode);
         }
