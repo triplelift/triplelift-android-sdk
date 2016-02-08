@@ -43,8 +43,8 @@ public class NativeAdUnit {
         this.userData = new ConcurrentHashMap<>();
         this.viewHolder = new NativeDisplayAdViewHolder();
         this.aspectRatio = DEFAULT_AR;
-
         this.nativeAdController = new NativeAdController(context);
+        this.nativeAdController.registerInvCode(invCode);
         setImplicitUserData();
     }
 
@@ -78,7 +78,7 @@ public class NativeAdUnit {
     }
 
     public void requestAds() {
-        nativeAdController.requestAds(invCode, userData);
+        nativeAdController.requestAds(invCode, userData, null);
     }
 
     public View getNativeAd(View view, ViewGroup parent) {
@@ -144,6 +144,10 @@ public class NativeAdUnit {
             return null;
         }
         return view;
+    }
+
+    public void registerNativeAdLayout(NativeAdLayout layout) {
+        this.nativeAdLayout = layout;
     }
 
     public void setDebug() {

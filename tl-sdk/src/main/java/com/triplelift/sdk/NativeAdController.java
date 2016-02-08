@@ -53,7 +53,7 @@ public class NativeAdController {
             public void run() {
                 retryFired = false;
                 for (String invCode: invCodes) {
-                    fillCache(invCode);
+                    fillCache(invCode, null);
                 }
             }
         };
@@ -67,9 +67,9 @@ public class NativeAdController {
         return !nativeAdCache.isEmpty();
     }
 
-    public void requestAds(String invCode, Map<String, String> requestParams) {
+    public void requestAds(String invCode, Map<String, String> requestParams, Handler.Callback callback) {
         this.requestParams = requestParams;
-        fillCache(invCode);
+        fillCache(invCode, callback);
     }
 
     protected NativeAd retrieveNativeAd(String invCode) {
@@ -86,14 +86,14 @@ public class NativeAdController {
             }
         }
 
-        if (nativeAdCache.size() < CACHE_SIZE && !requestFired && !retryFired) {
+        if (placementCache.size() < CACHE_SIZE && !requestFired && !retryFired) {
             cacheHandler.post(cacheRunnable);
         }
 
         return nativeAd;
     }
 
-    private void fillCache(String invCode) {
+    private void fillCache(String invCode, Handler.Callback callback) {
         List<NativeAd> cache;
         if (!nativeAdCache.containsKey(invCode)) {
             cache = new ArrayList<>(CACHE_SIZE);
@@ -103,17 +103,18 @@ public class NativeAdController {
         }
         if (cache.size() < CACHE_SIZE) {
             requestFired = true;
-            requestAd(invCode);
+            requestAd(invCode, callback);
         }
     }
 
-    private void requestAd(final String invCode) {
+    private void requestAd(final String invCode, Handler.Callback callback) {
 
         if (!nativeAdCache.containsKey(invCode)) {
             nativeAdCache.put(invCode, new ArrayList<NativeAd>());
         }
 
         final String requestUrl = generateRequestUrl(invCode, requestParams);
+
         JsonObjectRequest jsonReq = new JsonObjectRequest(Request.Method.GET, requestUrl, null,
                 new Response.Listener<JSONObject>() {
                     @Override
@@ -128,6 +129,7 @@ public class NativeAdController {
                                 retryReset();
                             }
                         }
+
                         requestFired = false;
                     }
                 }, new Response.ErrorListener() {
