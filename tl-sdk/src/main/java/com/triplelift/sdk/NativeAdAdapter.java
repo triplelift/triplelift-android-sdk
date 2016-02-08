@@ -122,7 +122,7 @@ public class NativeAdAdapter extends BaseAdapter {
     }
 
     public void loadAds() {
-        nativeAdController.requestAds(invCode, userData);
+        nativeAdController.requestAds(invCode, userData, null);
     }
 
     private View getNativeAdView(int position, View view, ViewGroup parent) {
