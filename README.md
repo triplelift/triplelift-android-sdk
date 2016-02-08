@@ -66,7 +66,7 @@ NOTE: You should set the background property on your ImageViews to null in order
 
 ## Instantiate the NativeAdUnit
 
-To delegate the insertion of native ads by the TripleLift SDK into your Custom View bind the layout you created above using a NativeAdLayout object (for bindings), frame layout, and instantiate the NativeAdUnit within your activity using the current ````Context````, your ````<INVENTORY_CODE>```` (provided by your TripleLift Account Manager), and the ````NativeAdLayout```` id.
+To delegate the insertion of native ads by the TripleLift SDK into your Custom View bind the layout you created above using a NativeAdLayout object (for bindings), a frame layout (that you will append the ad to), and instantiate the NativeAdUnit within your activity using the current ````Context````, your ````<INVENTORY_CODE>```` (provided by your TripleLift Account Manager), and the ````NativeAdLayout```` id.
 
 ````java
 // Include in the body of onCreate
