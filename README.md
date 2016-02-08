@@ -87,7 +87,12 @@ nativeAdUnit.registerNativeAdLayout(nativeAdLayout);
 
 ## Request & Render Ads
 
-By running ````nativeAdUnit.requestAds()````, you'll be asking the SDK to ping the TripleLift exchange, and you'll know an ad is available when ````nativeAdUnit.adIsAvailable()```` is ````true````, once it is true, you can call ````nativeAdUnit.renderNativeAd(frameLayout)````, which will append the native ad to the frame layout.
+By running ````nativeAdUnit.requestAds()````, you'll be asking the SDK to ping the TripleLift exchange, and you'll know an ad is available when ````nativeAdUnit.adIsAvailable()```` is ````true````, once it is true, you can call ````nativeAdUnit.getNativeAd(frameLayout)````, which you will append the native ad to the frame layout.
+
+````java
+frameLayout.removeAllViews();
+frameLayout.addView(adView);
+````
 
 # ListView Adapter Integration
 
