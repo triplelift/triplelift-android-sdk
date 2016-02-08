@@ -12,7 +12,7 @@ repositories {
     maven { url "https://jitpack.io" }
 }
 dependencies {
-    compile 'com.github.triplelift:triplelift-android-sdk:2.1.3'
+    compile 'com.github.triplelift:triplelift-android-sdk:2.1.4'
 }
 ````
 
