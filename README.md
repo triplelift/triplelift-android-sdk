@@ -66,7 +66,7 @@ NOTE: You should set the background property on your ImageViews to null in order
 
 ## Instantiate the NativeAdUnit
 
-To delegate the insertion of native ads by the TripleLift SDK into your ListView bind the layout you created above using a NativeAdLayout, and instantiate the NativeAdAdapter within your activity using the current ````Context````, your xml````<INVENTORY_CODE>```` (provided by your TripleLift Account Manager), and ````NativeAdLayout```` id.
+To delegate the insertion of native ads by the TripleLift SDK into your Custom View bind the layout you created above using a NativeAdLayout object (for bindings), frame layout, and instantiate the NativeAdUnit within your activity using the current ````Context````, your ````<INVENTORY_CODE>```` (provided by your TripleLift Account Manager), and the ````NativeAdLayout```` id.
 
 ````java
 // Include in the body of onCreate
@@ -93,7 +93,7 @@ By running ````nativeAdUnit.requestAds()````, you'll be asking the SDK to ping t
 
 ## Instantiate the NativeAdAdapter
 
-To delegate the insertion of native ads by the TripleLift SDK into your Custom View bind the layout you created above using a NativeAdLayout, and instantiate the NativeAdUnit within your activity using the current ````Context````, implemented ````BaseAdapter````, your xml```<INVENTORY_CODE>```` (provided by your TripleLift Account Manager), ````NativeAdLayout````, and default initial position as well as the repeat interval for ads to be rendered within the ListView. NOTE: Version 1.3 will allow changes to be made dynamically with respect to the initial position, repeat interval, as well as an added field for fixed positions.
+To delegate the insertion of native ads by the TripleLift SDK into your List View bind the layout you created above using a NativeAdLayout, and instantiate the NativeAdUnit within your activity using the current ````Context````, implemented ````BaseAdapter````, your ````<INVENTORY_CODE>```` (provided by your TripleLift Account Manager), ````NativeAdLayout````, and default initial position as well as the repeat interval for ads to be rendered within the ListView. 
 
 ````java
 // Include in the body of onCreate
