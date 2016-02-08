@@ -62,9 +62,38 @@ NOTE: You should set the background property on your ImageViews to null in order
 <ImageView android:background="@null"/>
 ````
 
+# Single View Integration
+
+## Instantiate the NativeAdUnit
+
+To delegate the insertion of native ads by the TripleLift SDK into your ListView bind the layout you created above using a NativeAdLayout, and instantiate the NativeAdAdapter within your activity using the current ````Context````, your xml````<INVENTORY_CODE>```` (provided by your TripleLift Account Manager), and ````NativeAdLayout```` id.
+
+````java
+// Include in the body of onCreate
+
+// Include a placeholder for the ad
+final FrameLayout frameLayout = (FrameLayout) findViewById(R.id.native_ad_placeholder);
+
+NativeAdLayout nativeAdLayout = new NativeAdLayout(R.id.native_ad_brand_name,
+                R.id.native_ad_image, R.id.native_ad_title,
+                R.id.native_ad_caption);
+
+// Instantiate the unit
+nativeAdUnit = new NativeAdUnit(getApplicationContext(), <INVENTORY_CODE>, R.layout.ad_item);
+
+// Register the Native Ad Layout to add content bindings
+nativeAdUnit.registerNativeAdLayout(nativeAdLayout);
+````
+
+## Request & Render Ads
+
+By running ````nativeAdUnit.requestAds()````, you'll be asking the SDK to ping the TripleLift exchange, and you'll know an ad is available when ````nativeAdUnit.adIsAvailable()```` is ````true````, once it is true, you can call ````nativeAdUnit.renderNativeAd(frameLayout)````, which will append the native ad to the frame layout.
+
+# ListView Adapter Integration
+
 ## Instantiate the NativeAdAdapter
 
-To delegate the insertion of native ads by the TripleLift SDK into your ListView bind the layout you created above using a NativeAdLayout, and instantiate the NativeAdAdapter within your activity using the current ````Context````, implemented ````BaseAdapter````, your xml```<INVENTORY_CODE>```` (provided by your TripleLift Account Manager), ````NativeAdLayout````, and default initial position as well as the repeat interval for ads to be rendered within the ListView. NOTE: Version 1.3 will allow changes to be made dynamically with respect to the initial position, repeat interval, as well as an added field for fixed positions.
+To delegate the insertion of native ads by the TripleLift SDK into your Custom View bind the layout you created above using a NativeAdLayout, and instantiate the NativeAdUnit within your activity using the current ````Context````, implemented ````BaseAdapter````, your xml```<INVENTORY_CODE>```` (provided by your TripleLift Account Manager), ````NativeAdLayout````, and default initial position as well as the repeat interval for ads to be rendered within the ListView. NOTE: Version 1.3 will allow changes to be made dynamically with respect to the initial position, repeat interval, as well as an added field for fixed positions.
 
 ````java
 // Include in the body of onCreate
