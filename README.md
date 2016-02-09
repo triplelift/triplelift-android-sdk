@@ -27,6 +27,7 @@ The SDK uses Volley for requests and requires that it be an included module: htt
 <uses-permission android:name="android.permission.INTERNET"/>
 <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
 // Optional 
+<uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
 <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
 <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>  
 ````
