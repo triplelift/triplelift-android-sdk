@@ -51,9 +51,9 @@ Example:
 <!-- native_ad_element.xml -->
 <RelativeLayout>
   <ImageView android:id="@+id/native_ad_main_image"/>
-  <TextView android:id="@+id/native_ad_title"/>
+  <TextView android:id="@+id/native_ad_heading"/>
   <TextView android:id="@+id/native_ad_caption"/>
-  <TextView android:id="@+id/native_ad_brand_name"/>
+  <TextView android:id="@+id/native_ad_advertiser"/>
 </RelativeLayout>
 ````
 
@@ -75,8 +75,8 @@ To delegate the insertion of native ads by the TripleLift SDK into your Custom V
 // Include a placeholder for the ad
 final FrameLayout frameLayout = (FrameLayout) findViewById(R.id.native_ad_placeholder);
 
-NativeAdLayout nativeAdLayout = new NativeAdLayout(R.id.native_ad_brand_name,
-                R.id.native_ad_image, R.id.native_ad_title,
+NativeAdLayout nativeAdLayout = new NativeAdLayout(R.id.native_ad_advertiser,
+                R.id.native_ad_image, R.id.native_ad_heading,
                 R.id.native_ad_caption);
 
 // Instantiate the unit
@@ -104,8 +104,8 @@ To delegate the insertion of native ads by the TripleLift SDK into your List Vie
 ````java
 // Include in the body of onCreate
 NativeAdLayout nativeAdLayout = new NativeAdLayout(R.layout.native_ad_item,
-        R.id.native_ad_title, R.id.native_ad_image, R.id.native_ad_caption, 
-        R.id.native_ad_brand_name);
+        R.id.native_ad_heading, R.id.native_ad_image, R.id.native_ad_caption, 
+        R.id.native_ad_advertiser);
 
 nativeAdAdapter = new NativeAdAdapter(context,
         adapter, <INVENTORY_CODE>, nativeAdLayout, 
