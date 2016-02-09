@@ -4,7 +4,7 @@ Try out our [demo](https://s3.amazonaws.com/mobile.triplelift.com/triplelift-and
 
 ## Adding the TripleLift SDK to your project
 
-Clone this project and use as a module in your android project
+Clone this project and add it as a module in your android project.
 
 ## Requirements and Dependencies
 
