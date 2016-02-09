@@ -4,17 +4,7 @@ Try out our [demo](https://s3.amazonaws.com/mobile.triplelift.com/triplelift-and
 
 ## Adding the TripleLift SDK to your project
 
-Clone this project or use jitpack to add the TripleLift SDK as a dependency.
-
-````
-repositories { 
-    ...
-    maven { url "https://jitpack.io" }
-}
-dependencies {
-    compile 'com.github.triplelift:triplelift-android-sdk:v2.1.5'
-}
-````
+Clone this project and use as a module in your android project
 
 ## Requirements and Dependencies
 
