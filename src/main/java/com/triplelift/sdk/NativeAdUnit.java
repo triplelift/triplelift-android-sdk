@@ -78,11 +78,19 @@ public class NativeAdUnit {
     }
 
     public void requestAds() {
-        nativeAdController.requestAds(invCode, userData, null);
+        nativeAdController.requestAds(invCode, userData);
     }
 
-    public View getNativeAd(View view, ViewGroup parent) {
-        final NativeAd nativeAd = nativeAdController.retrieveNativeAd(invCode);
+    public void requestAd(NativeAdCallback nativeAdCallback) {
+        nativeAdController.requestAd(invCode, userData, nativeAdCallback);
+    }
+
+    public void getNativeAd(ViewGroup parent) {
+        getNativeAd(null, parent);
+    }
+
+    public View getNativeAd(View view, ViewGroup parent, final NativeAd nativeAd) {
+
         if (nativeAd == null) {
             return null;
         }
@@ -96,9 +104,6 @@ public class NativeAdUnit {
             viewHolder.mainImage = (NetworkImageView) view.findViewById(nativeAdLayout.getImageId());
             //viewHolder.logo = (NetworkImageView) view.findViewById(nativeAdLayout.getLogoId());
             view.setTag(viewHolder);
-
-//            userData.put("width", Integer.toString(viewHolder.mainImage.getWidth()));
-//            userData.put("height", Integer.toString(viewHolder.mainImage.getHeight()));
         } else {
             if (view.getTag() == null) {
                 return null;
@@ -106,7 +111,7 @@ public class NativeAdUnit {
             viewHolder = (NativeDisplayAdViewHolder) view.getTag();
         }
 
-        ImageLoader imageLoader = Controller.getInstance(context).getImageLoader();
+        final ImageLoader imageLoader = Controller.getInstance(context).getImageLoader();
 
         viewHolder.mainImage.getViewTreeObserver().addOnPreDrawListener(
                 new ViewTreeObserver.OnPreDrawListener() {
@@ -114,6 +119,7 @@ public class NativeAdUnit {
                         int width = viewHolder.mainImage.getMeasuredWidth();
                         int height = viewHolder.mainImage.getMeasuredHeight();
                         setDimensions(width, height);
+//                        viewHolder.mainImage.setImageUrl(Utils.setWidthAndHeight(nativeAd.getImageUrl(), width, height), imageLoader);
                         return true;
                     }
                 });
@@ -123,8 +129,8 @@ public class NativeAdUnit {
             viewHolder.brand.setText("Sponsored by " + nativeAd.getBrandName());
             viewHolder.header.setText(nativeAd.getHeader());
             viewHolder.caption.setText(nativeAd.getCaption());
-            //viewHolder.logo.setImageUrl(nativeAd.getLogoUrl(), imageLoader);
             viewHolder.mainImage.setImageUrl(nativeAd.getImageUrl(), imageLoader);
+            //viewHolder.logo.setImageUrl(nativeAd.getLogoUrl(), imageLoader);
 
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -146,8 +152,21 @@ public class NativeAdUnit {
         return view;
     }
 
+    public View getNativeAd(View view, ViewGroup parent) {
+        final NativeAd nativeAd = nativeAdController.retrieveNativeAd(invCode);
+        return getNativeAd(view, parent, nativeAd);
+    }
+
     public void registerNativeAdLayout(NativeAdLayout layout) {
         this.nativeAdLayout = layout;
+    }
+
+    public boolean adIsAvailable() {
+        final NativeAd nativeAd = nativeAdController.retrieveNativeAd(invCode);
+        if (nativeAd == null) {
+            return false;
+        }
+        return true;
     }
 
     public void setDebug() {
