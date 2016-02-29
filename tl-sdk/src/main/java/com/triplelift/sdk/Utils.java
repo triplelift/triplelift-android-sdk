@@ -73,4 +73,10 @@ public class Utils {
         }
         return value;
     }
+
+    public static String setWidthAndHeight(String url, int width, int height) {
+        url.replace("(width=)[^&]+","width=" + width);
+        url.replace("(height=)[^&]+","height=" + height);
+        return url;
+    }
 }
