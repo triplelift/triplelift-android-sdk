@@ -1,7 +1,7 @@
 .DS_Store
 app
 volley
-build.gradle
+# build.gradle
 settings.gradle
 .gradle/
 build/

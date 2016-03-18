@@ -25,8 +25,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class NativeAdController {
 
     private static final String TAG = NativeAdController.class.getSimpleName();
-    //private static final String BASE_URL = "http://tlx.3lift.com/mj/auction?invType=app&";
-    private static final String BASE_URL = "http://10.0.1.86:8076/mj/auction?invType=app&";
+    private static final String BASE_URL = "http://tlx.3lift.com/mj/auction?invType=app&";
+    //    private static final String BASE_URL = "http://10.0.1.86:8076/mj/auction?invType=app&";
     private static final int CACHE_EXPIRATION = 5 * 60 * 1000;
     private static final int[] RETRY_DELAY = new int[]{1000, 1000 * 5, 1000 * 30, 1000 * 60, 1000 * 60 * 3};
     private static final int CACHE_SIZE = 1;
@@ -38,7 +38,7 @@ public class NativeAdController {
 
     private final Context context;
     private final Handler cacheHandler;
-    private final Runnable cacheRunnable;
+    private Runnable cacheRunnable;
     private final Map<String, List<NativeAd>> nativeAdCache;
     private final Set<String> invCodes;
 
@@ -48,15 +48,6 @@ public class NativeAdController {
         this.nativeAdCache = new HashMap<>();
         this.cacheHandler = new Handler();
         this.invCodes = new HashSet<>();
-        this.cacheRunnable = new Runnable() {
-            @Override
-            public void run() {
-                retryFired = false;
-                for (String invCode: invCodes) {
-                    fillCache(invCode);
-                }
-            }
-        };
     }
 
     public void registerInvCode(String invCode) {
@@ -70,6 +61,11 @@ public class NativeAdController {
     public void requestAds(String invCode, Map<String, String> requestParams) {
         this.requestParams = requestParams;
         fillCache(invCode);
+    }
+
+    public void requestAd(String invCode, Map<String, String> requestParams, NativeAdCallback nativeAdCallback) {
+        this.requestParams = requestParams;
+        requestAdWithCallbacks(invCode, nativeAdCallback);
     }
 
     protected NativeAd retrieveNativeAd(String invCode) {
@@ -86,8 +82,13 @@ public class NativeAdController {
             }
         }
 
-        if (nativeAdCache.size() < CACHE_SIZE && !requestFired && !retryFired) {
-            cacheHandler.post(cacheRunnable);
+        if (placementCache == null) {
+            placementCache = new ArrayList<>(CACHE_SIZE);
+            nativeAdCache.put(invCode, placementCache);
+        }
+
+        if (placementCache.size() < CACHE_SIZE && !requestFired && !retryFired) {
+            cacheHandler.post(getCacheRunnable());
         }
 
         return nativeAd;
@@ -114,7 +115,8 @@ public class NativeAdController {
         }
 
         final String requestUrl = generateRequestUrl(invCode, requestParams);
-        JsonObjectRequest jsonReq = new JsonObjectRequest(Request.Method.GET, requestUrl, null,
+
+        JsonObjectRequest jsonReq = new JsonObjectRequest(Request.Method.GET, requestUrl,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
@@ -128,6 +130,7 @@ public class NativeAdController {
                                 retryReset();
                             }
                         }
+
                         requestFired = false;
                     }
                 }, new Response.ErrorListener() {
@@ -139,8 +142,40 @@ public class NativeAdController {
                     retryReset();
                     return;
                 }
-                cacheHandler.postDelayed(cacheRunnable, RETRY_DELAY[retryIndex]);
+                cacheHandler.postDelayed(getCacheRunnable(), RETRY_DELAY[retryIndex]);
                 retryIndex++;
+            }
+        }
+        );
+
+        jsonReq.setRetryPolicy(new DefaultRetryPolicy(5*1000, 0, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT));
+        Controller.getInstance(context).addToRequestQueue(jsonReq);
+    }
+
+    private void requestAdWithCallbacks(final String invCode, final NativeAdCallback nativeAdCallback) {
+
+        final String requestUrl = generateRequestUrl(invCode, requestParams);
+
+        JsonObjectRequest jsonReq = new JsonObjectRequest(Request.Method.GET, requestUrl,
+                new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        VolleyLog.d(TAG, "Response: " + response.toString());
+                        if (response != null) {
+                            NativeAd nativeAd = parseNativeAd(response);
+                            if (nativeAd != null) {
+                                nativeAdCallback.onSuccess(nativeAd);
+                            } else {
+                                nativeAdCallback.onFailure(response);
+                            }
+                        }
+
+                    }
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                VolleyLog.d(TAG, "Error: " + error.getMessage());
+                nativeAdCallback.onError(error);
             }
         }
         );
@@ -168,7 +203,6 @@ public class NativeAdController {
 
     private NativeAd parseNativeAd(JSONObject response) {
         try {
-            System.out.println(response.toString());
             if (response.has("status")) {
                 return null;
             }
@@ -192,7 +226,7 @@ public class NativeAdController {
 
             return nativeAd;
         } catch (JSONException e) {
-            e.printStackTrace();
+            VolleyLog.d(TAG, "Error: " + e.getMessage());
         }
         return null;
     }
@@ -210,6 +244,22 @@ public class NativeAdController {
             }
         }
         return list;
+    }
+
+    private Runnable getCacheRunnable() {
+        if (cacheRunnable == null) {
+            this.cacheRunnable = new Runnable() {
+                @Override
+                public void run() {
+                    retryFired = false;
+                    for (String invCode: invCodes) {
+                        fillCache(invCode);
+                    }
+                }
+            };
+        }
+
+        return cacheRunnable;
     }
 
     private void retryReset() {
