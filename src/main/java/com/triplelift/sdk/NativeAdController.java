@@ -116,7 +116,7 @@ public class NativeAdController {
 
         final String requestUrl = generateRequestUrl(invCode, requestParams);
 
-        JsonObjectRequest jsonReq = new JsonObjectRequest(Request.Method.GET, requestUrl,
+        JsonObjectRequest jsonReq = new JsonObjectRequest(requestUrl, null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
@@ -156,7 +156,7 @@ public class NativeAdController {
 
         final String requestUrl = generateRequestUrl(invCode, requestParams);
 
-        JsonObjectRequest jsonReq = new JsonObjectRequest(Request.Method.GET, requestUrl,
+        JsonObjectRequest jsonReq = new JsonObjectRequest(requestUrl, null,
                 new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
