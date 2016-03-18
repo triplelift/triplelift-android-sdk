@@ -36,6 +36,11 @@ public class NativeAdUnit {
         NetworkImageView logo;
     }
 
+    public NativeAdUnit(Context context, String invCode, int width, int height) {
+        this(context, invCode, 0);
+        setDimensions(width, height);
+    }
+
     public NativeAdUnit(Context context, String invCode, int nativeAdLayoutId) {
         this.context = context;
         this.nativeAdLayoutId = nativeAdLayoutId;
