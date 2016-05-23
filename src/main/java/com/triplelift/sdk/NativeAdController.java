@@ -216,7 +216,7 @@ public class NativeAdController {
             String heading = response.getString("heading");
             String logoImageUrl = null;
             if(!response.isNull("logo_image_url")) {
-                logoImageUrl = "http:" + response.getString("logo_image_url");
+                logoImageUrl = response.getString("logo_image_url");
             }
 
             // Replace logo so it isn't burned in
