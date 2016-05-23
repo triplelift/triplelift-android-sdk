@@ -35,19 +35,21 @@ public class NativeAdController {
     private boolean retryFired = false;
     private int retryIndex = 0;
     private boolean debug = false;
-
+    private boolean includeLogoOnImage;
     private final Context context;
     private final Handler cacheHandler;
     private Runnable cacheRunnable;
     private final Map<String, List<NativeAd>> nativeAdCache;
     private final Set<String> invCodes;
 
-    NativeAdController(Context context) {
+    NativeAdController(Context context, boolean includeLogoOnImage) {
         this.requestParams = new ConcurrentHashMap<>();
         this.context = context;
         this.nativeAdCache = new HashMap<>();
         this.cacheHandler = new Handler();
         this.invCodes = new HashSet<>();
+        this.includeLogoOnImage = includeLogoOnImage;
+
     }
 
     public void registerInvCode(String invCode) {
@@ -212,17 +214,26 @@ public class NativeAdController {
             String imageUrl = response.getString("image_url");
             String caption = response.getString("caption");
             String heading = response.getString("heading");
+            String logoImageUrl = null;
+            if(!response.isNull("logo_image_url")) {
+                logoImageUrl = "http:" + response.getString("logo_image_url");
+            }
+
+            // Replace logo so it isn't burned in
+            if(!includeLogoOnImage && logoImageUrl != null) {
+                imageUrl = imageUrl.replace("&logo=", "&xlogo=").replace("&alt_logo=", "&alt_xlogo=");
+            }
 
             imageUrl = imageUrl.replace("https", "http"); //sand image server doesn't support https
+            logoImageUrl = logoImageUrl.replace("https", "http"); //sand image server doesn't support https
+
 
             //TODO fix this? & maybe null check
             List<String> clickthroughPixels = jsonArrayToList((JSONArray) response.get("clickthrough_pixels"));
             List<String> impressionPixels = jsonArrayToList((JSONArray) response.get("impression_pixels"));
 
-            // TODO logo URL
             NativeAd nativeAd = new NativeAd(context, advertiser, clickthroughUrl, imageUrl, caption,
-                    heading, "http://i.forbesimg.com/media/lists/companies/triplelift_416x416.jpg",
-                    impressionPixels, clickthroughPixels);
+                    heading, logoImageUrl, impressionPixels, clickthroughPixels);
 
             return nativeAd;
         } catch (JSONException e) {
