@@ -216,7 +216,10 @@ public class NativeAdController {
             String heading = response.getString("heading");
             String logoImageUrl = null;
             if(!response.isNull("logo_image_url")) {
+                // Only attempt transformations on logo image url if it exists
                 logoImageUrl = response.getString("logo_image_url");
+                //sand image server doesn't support https
+                logoImageUrl = logoImageUrl.replace("https", "http");
             }
 
             // Replace logo so it isn't burned in
@@ -225,7 +228,6 @@ public class NativeAdController {
             }
 
             imageUrl = imageUrl.replace("https", "http"); //sand image server doesn't support https
-            logoImageUrl = logoImageUrl.replace("https", "http"); //sand image server doesn't support https
 
 
             //TODO fix this? & maybe null check
