@@ -52,7 +52,7 @@ public class NativeAdAdapter extends BaseAdapter {
         this.viewHolder = new NativeDisplayAdViewHolder();
         this.aspectRatio = DEFAULT_AR;
 
-        this.nativeAdController = new NativeAdController(context);
+        this.nativeAdController = new NativeAdController(context, false);
         this.nativeAdController.registerInvCode(invCode);
         NativeFeedPositions nativeFeedPosition = new NativeFeedPositions(new int[] {initialPosition}, repeatInterval);
         this.nativeFeedPlacement = new NativeFeedPlacement(nativeFeedPosition);

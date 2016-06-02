@@ -36,19 +36,24 @@ public class NativeAdUnit {
         NetworkImageView logo;
     }
 
-    public NativeAdUnit(Context context, String invCode, int width, int height) {
-        this(context, invCode, 0);
+    public NativeAdUnit(Context context, String invCode, int width, int height, boolean includeLogoOnImage) {
+        this(context, invCode, 0, includeLogoOnImage);
         setDimensions(width, height);
     }
 
-    public NativeAdUnit(Context context, String invCode, int nativeAdLayoutId) {
+    public NativeAdUnit(Context context, String invCode, int width, int height) {
+        this(context, invCode, 0, true);
+        setDimensions(width, height);
+    }
+
+    public NativeAdUnit(Context context, String invCode, int nativeAdLayoutId, boolean includeLogoOnImage) {
         this.context = context;
         this.nativeAdLayoutId = nativeAdLayoutId;
         this.invCode = invCode;
         this.userData = new ConcurrentHashMap<>();
         this.viewHolder = new NativeDisplayAdViewHolder();
         this.aspectRatio = DEFAULT_AR;
-        this.nativeAdController = new NativeAdController(context);
+        this.nativeAdController = new NativeAdController(context, includeLogoOnImage);
         this.nativeAdController.registerInvCode(invCode);
         setImplicitUserData();
     }
@@ -135,7 +140,7 @@ public class NativeAdUnit {
             viewHolder.header.setText(nativeAd.getHeader());
             viewHolder.caption.setText(nativeAd.getCaption());
             viewHolder.mainImage.setImageUrl(nativeAd.getImageUrl(), imageLoader);
-            //viewHolder.logo.setImageUrl(nativeAd.getLogoUrl(), imageLoader);
+            viewHolder.logo.setImageUrl(nativeAd.getLogoUrl(), imageLoader);
 
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -156,6 +161,7 @@ public class NativeAdUnit {
         }
         return view;
     }
+
 
     public View getNativeAd(View view, ViewGroup parent) {
         final NativeAd nativeAd = nativeAdController.retrieveNativeAd(invCode);

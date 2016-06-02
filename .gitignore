@@ -3,4 +3,9 @@ app
 volley
 # build.gradle
 settings.gradle
+.gradle/
+build/
+gradle.properties
+local.properties
+tl-sdk/local.properties
 
